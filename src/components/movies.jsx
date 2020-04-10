@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Like from "./like";
+import Like from "./common/like";
 
 class Movies extends Component {
   render() {
@@ -7,7 +7,7 @@ class Movies extends Component {
   }
 
   renderMovies() {
-    if (!this.props.movies.length) {
+    if (!this.props.moviesCount) {
       return (
         <div className="row">
           <div className="col">
@@ -30,7 +30,7 @@ class Movies extends Component {
     return (
       <div className="row m-1">
         <div className="col">
-          <h4>Showing {this.props.movies.length} movies in the database.</h4>
+          <h4>Showing {this.props.moviesCount} movies in the database.</h4>
         </div>
       </div>
     );
