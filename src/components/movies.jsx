@@ -1,22 +1,13 @@
 import React, { Component } from "react";
-import { getMovies } from "../services/fakeMovieService";
+import Like from "./like";
 
 class Movies extends Component {
-  state = {
-    movies: getMovies(),
-  };
   render() {
     return this.renderMovies();
   }
 
-  deleteHandle = (movie) => {
-    this.setState({
-      movies: this.state.movies.filter((mov) => mov._id !== movie._id),
-    });
-  };
-
   renderMovies() {
-    if (!this.state.movies.length) {
+    if (!this.props.movies.length) {
       return (
         <div className="row">
           <div className="col">
@@ -39,7 +30,7 @@ class Movies extends Component {
     return (
       <div className="row m-1">
         <div className="col">
-          <h4>Showing {this.state.movies.length} movies in the database.</h4>
+          <h4>Showing {this.props.movies.length} movies in the database.</h4>
         </div>
       </div>
     );
@@ -48,7 +39,7 @@ class Movies extends Component {
   renderMoviesHeader() {
     return (
       <div className="row m-1">
-        <div className="col-4">
+        <div className="col-3">
           <b>Title</b>
         </div>
         <div className="col-2">
@@ -60,6 +51,9 @@ class Movies extends Component {
         <div className="col-2">
           <b>Rate</b>
         </div>
+        <div className="col-1">
+          <b>&nbsp;</b>
+        </div>
         <div className="col-2">
           <b>&nbsp;</b>
         </div>
@@ -68,17 +62,23 @@ class Movies extends Component {
   }
 
   renderMoviesRows() {
-    return this.state.movies.map((movie) => {
+    return this.props.movies.map((movie) => {
       return (
-        <div key={movie._id} className="row m-1">
-          <div className="col-4">{movie.title}</div>
-          <div className="col-2">{movie.genre.name}</div>
-          <div className="col-2">{movie.numberInStock}</div>
-          <div className="col-2">{movie.dailyRentalRate}</div>
+        <div key={movie.id} className="row m-1">
+          <div className="col-3">{movie.title}</div>
+          <div className="col-2">{movie.genre}</div>
+          <div className="col-2">{movie.stock}</div>
+          <div className="col-2">{movie.rate}</div>
+          <div className="col-1">
+            <Like
+              liked={movie.liked}
+              onClick={() => this.props.onToggleLike(movie)}
+            />
+          </div>
           <div className="col-2">
             <button
               className="btn btn-danger"
-              onClick={() => this.deleteHandle(movie)}
+              onClick={() => this.props.onDelete(movie)}
             >
               Delete
             </button>
