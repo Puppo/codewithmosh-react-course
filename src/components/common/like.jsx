@@ -1,13 +1,9 @@
 import React from "react";
 
-const Like = (props) => {
-  const cssClass = "fa fa-heart" + (props.liked ? "" : "-o");
+const Like = ({ liked, onClick }) => {
+  const cssClass = "fa fa-heart" + (liked ? "" : "-o");
   return (
-    <i
-      className={cssClass}
-      style={{ cursor: "pointer" }}
-      onClick={props.onClick}
-    ></i>
+    <i className={cssClass} style={{ cursor: "pointer" }} onClick={onClick}></i>
   );
 };
 
