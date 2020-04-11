@@ -84,7 +84,7 @@ class Movies extends Component {
   render() {
     const { totalCount, data: movies } = this.getPagedData();
     return (
-      <main className="container">
+      <React.Fragment>
         <div className="row">
           <div className="col-3">
             <ListGroup
@@ -118,7 +118,7 @@ class Movies extends Component {
             </div>
           </div>
         </div>
-      </main>
+      </React.Fragment>
     );
   }
 }
