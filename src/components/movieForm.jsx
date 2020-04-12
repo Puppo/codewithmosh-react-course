@@ -1,7 +1,7 @@
 import React from "react";
 import Joi from "joi-browser";
 import Form from "./common/form";
-import { getMovies, saveMovie } from "../services/fakeMovieService";
+import { getMovie, saveMovie } from "../services/movieService";
 import { getGenres } from "../services/genreService";
 
 class MovieForm extends Form {
@@ -28,20 +28,29 @@ class MovieForm extends Form {
     this.props.history.push("/movies");
   };
 
-  async componentDidMount() {
+  async populateGenres() {
     const { data: genres } = await getGenres();
     this.setState({ genres });
+  }
 
-    const movieId = this.props.match.params.id;
+  async populateMovies() {
+    try {
+      const movieId = this.props.match.params.id;
+      if (movieId === "new") return;
 
-    if (movieId === "new") return;
-
-    const movie = getMovies().find((movie) => movie._id === movieId);
-    if (!movie) {
-      return this.props.history.replace("/not-found");
+      const { data: movie } = await getMovie(movieId);
+      this.setState({ data: this.mapMovieToViewModel(movie) });
+    } catch (ex) {
+      if (ex.response && ex.response.status === 404) {
+        return this.props.history.replace("/not-found");
+      }
     }
+  }
 
-    this.setState({ data: this.mapMovieToViewModel(movie) });
+  async componentDidMount() {
+    await this.populateGenres();
+
+    await this.populateMovies();
   }
 
   mapMovieToViewModel(movie) {
@@ -54,12 +63,11 @@ class MovieForm extends Form {
     };
   }
 
-  doSubmit = () => {
-    saveMovie({
-      ...this.state.data,
-      _id: this.props.match.params.id,
-    });
-    this.props.history.push("/movies");
+  doSubmit = async () => {
+    try {
+      await saveMovie(this.state.data);
+      this.props.history.push("/movies");
+    } catch (ex) {}
   };
 
   render() {

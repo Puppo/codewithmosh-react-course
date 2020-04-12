@@ -5,9 +5,10 @@ import Pagination from "./common/pagination";
 import ListGroup from "./common/listGroup";
 import MoviesTable from "./moviesTable";
 import SearchBox from "./common/searchBox";
-import { getMovies, deleteMovie } from "../services/fakeMovieService";
+import { getMovies, deleteMovie } from "../services/movieService";
 import { getGenres } from "../services/genreService";
 import { paginate } from "../utils/paginate";
+import { toast } from "react-toastify";
 
 class Movies extends Component {
   state = {
@@ -25,11 +26,21 @@ class Movies extends Component {
     },
   };
 
-  handleDelete = (movie) => {
-    deleteMovie(movie._id);
+  handleDelete = async (movie) => {
+    const originalMovie = this.state.movies;
     this.setState({
-      movies: this.state.movies.filter((mov) => mov._id !== movie._id),
+      movies: originalMovie.filter((mov) => mov._id !== movie._id),
     });
+
+    try {
+      await deleteMovie(movie._id);
+    } catch (ex) {
+      if (ex.response && ex.response.status === 404) {
+        toast.error("This movie has already been deleted.");
+      }
+
+      this.setState({ movies: originalMovie });
+    }
   };
 
   handleChangePage = (page) => {
@@ -72,8 +83,9 @@ class Movies extends Component {
     const { data: httpGenres } = await getGenres();
     const genres = [{ _id: "", name: "All Genres" }, ...httpGenres];
     const selectedGenre = genres[0];
+    const { data: movies } = await getMovies();
     this.setState({
-      movies: getMovies(),
+      movies,
       genres,
       selectedGenre,
     });
