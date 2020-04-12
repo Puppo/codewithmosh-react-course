@@ -6,7 +6,7 @@ import ListGroup from "./common/listGroup";
 import MoviesTable from "./moviesTable";
 import SearchBox from "./common/searchBox";
 import { getMovies, deleteMovie } from "../services/fakeMovieService";
-import { getGenres } from "../services/fakeGenreService";
+import { getGenres } from "../services/genreService";
 import { paginate } from "../utils/paginate";
 
 class Movies extends Component {
@@ -68,8 +68,9 @@ class Movies extends Component {
     });
   };
 
-  componentDidMount() {
-    const genres = [{ _id: "", name: "All Genres" }, ...getGenres()];
+  async componentDidMount() {
+    const { data: httpGenres } = await getGenres();
+    const genres = [{ _id: "", name: "All Genres" }, ...httpGenres];
     const selectedGenre = genres[0];
     this.setState({
       movies: getMovies(),
