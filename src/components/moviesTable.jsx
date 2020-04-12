@@ -7,6 +7,7 @@ class MoviesTable extends Component {
   columns = [
     {
       key: "title",
+      path: "title",
       label: "Title",
       content: (movie) => (
         <Link to={`/movies/${movie._id}`}>{movie.title}</Link>
@@ -45,30 +46,15 @@ class MoviesTable extends Component {
 
   render() {
     const { movies, movieCount } = this.props;
-    return (
-      <React.Fragment>
-        {!movieCount ? (
-          <h4>No movies in the database</h4>
-        ) : (
-          <React.Fragment>
-            <div className="row m-1">
-              <div className="col">
-                <h4>Showing {movieCount} movies in the database.</h4>
-              </div>
-            </div>
-            <div className="row m-1">
-              <div className="col">
-                <Table
-                  columns={this.columns}
-                  sortColumn={this.props.sortColumn}
-                  data={movies}
-                  onSort={this.props.onSort}
-                />
-              </div>
-            </div>
-          </React.Fragment>
-        )}
-      </React.Fragment>
+    return !movieCount ? (
+      <h4>No movies in the database</h4>
+    ) : (
+      <Table
+        columns={this.columns}
+        sortColumn={this.props.sortColumn}
+        data={movies}
+        onSort={this.props.onSort}
+      />
     );
   }
 }

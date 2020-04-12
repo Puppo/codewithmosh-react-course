@@ -1,17 +1,20 @@
 import _ from "lodash";
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 import Pagination from "./common/pagination";
 import ListGroup from "./common/listGroup";
-import { getMovies } from "../services/fakeMovieService";
+import MoviesTable from "./moviesTable";
+import SearchBox from "./common/searchBox";
+import { getMovies, deleteMovie } from "../services/fakeMovieService";
 import { getGenres } from "../services/fakeGenreService";
 import { paginate } from "../utils/paginate";
-import MoviesTable from "./moviesTable";
 
 class Movies extends Component {
   state = {
     genres: [],
     movies: [],
     selectedGenre: null,
+    searchQuery: "",
     pager: {
       size: 3,
       page: 1,
@@ -23,6 +26,7 @@ class Movies extends Component {
   };
 
   handleDelete = (movie) => {
+    deleteMovie(movie._id);
     this.setState({
       movies: this.state.movies.filter((mov) => mov._id !== movie._id),
     });
@@ -53,7 +57,15 @@ class Movies extends Component {
       ...this.state.pager,
       page: 1,
     };
-    this.setState({ selectedGenre: genre, pager });
+    this.setState({ selectedGenre: genre, pager, searchQuery: "" });
+  };
+
+  handleSearch = (searchQuery) => {
+    this.setState({
+      searchQuery,
+      selectedGenre: null,
+      pager: { ...this.state.pager, page: 1 },
+    });
   };
 
   componentDidMount() {
@@ -67,11 +79,21 @@ class Movies extends Component {
   }
 
   getPagedData = () => {
-    const { selectedGenre, pager, sortColumn } = this.state;
-    const filtered =
-      selectedGenre && selectedGenre._id
-        ? this.state.movies.filter((x) => x.genre._id === selectedGenre._id)
-        : this.state.movies;
+    const {
+      selectedGenre,
+      pager,
+      sortColumn,
+      searchQuery,
+      movies: allMovies,
+    } = this.state;
+    let filtered = allMovies;
+    if (searchQuery.trim()) {
+      filtered = filtered.filter(({ title }) =>
+        title.toLowerCase().startsWith(searchQuery.toLowerCase())
+      );
+    } else if (selectedGenre && selectedGenre._id) {
+      filtered = filtered.filter((x) => x.genre._id === selectedGenre._id);
+    }
     const { length: totalCount } = filtered;
     const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
     const data = paginate(sorted, pager.page, pager.size);
@@ -94,28 +116,31 @@ class Movies extends Component {
             />
           </div>
           <div className="col">
-            <div className="row">
-              <div className="col">
-                <MoviesTable
-                  movies={movies}
-                  movieCount={totalCount}
-                  sortColumn={this.state.sortColumn}
-                  onDelete={this.handleDelete}
-                  onLike={this.handleLike}
-                  onSort={this.handleSort}
-                />
-              </div>
-            </div>
-            <div className="row m-1">
-              <div className="col">
-                <Pagination
-                  itemsCount={totalCount}
-                  pageSize={this.state.pager.size}
-                  currentPage={this.state.pager.page}
-                  onChange={this.handleChangePage}
-                />
-              </div>
-            </div>
+            <Link className="btn btn-primary" to="/movies/new">
+              New Movie
+            </Link>
+            <h4 className="my-3">
+              Showing {totalCount} movies in the database.
+            </h4>
+            <SearchBox
+              value={this.state.searchQuery}
+              onChange={this.handleSearch}
+            />
+            <MoviesTable
+              movies={movies}
+              movieCount={totalCount}
+              sortColumn={this.state.sortColumn}
+              onDelete={this.handleDelete}
+              onLike={this.handleLike}
+              onSort={this.handleSort}
+              onSearch={this.handleSearch}
+            />
+            <Pagination
+              itemsCount={totalCount}
+              pageSize={this.state.pager.size}
+              currentPage={this.state.pager.page}
+              onChange={this.handleChangePage}
+            />
           </div>
         </div>
       </React.Fragment>
