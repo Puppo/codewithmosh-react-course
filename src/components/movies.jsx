@@ -1,6 +1,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import Pagination from "./common/pagination";
 import ListGroup from "./common/listGroup";
 import MoviesTable from "./moviesTable";
@@ -8,7 +9,6 @@ import SearchBox from "./common/searchBox";
 import { getMovies, deleteMovie } from "../services/movieService";
 import { getGenres } from "../services/genreService";
 import { paginate } from "../utils/paginate";
-import { toast } from "react-toastify";
 
 class Movies extends Component {
   state = {
@@ -118,6 +118,7 @@ class Movies extends Component {
 
   render() {
     const { totalCount, data: movies } = this.getPagedData();
+    const { user } = this.props;
     return (
       <React.Fragment>
         <div className="row">
@@ -129,9 +130,11 @@ class Movies extends Component {
             />
           </div>
           <div className="col">
-            <Link className="btn btn-primary" to="/movies/new">
-              New Movie
-            </Link>
+            {user && (
+              <Link className="btn btn-primary" to="/movies/new">
+                New Movie
+              </Link>
+            )}
             <h4 className="my-3">
               Showing {totalCount} movies in the database.
             </h4>
